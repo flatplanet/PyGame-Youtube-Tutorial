@@ -23,12 +23,11 @@ while running:
 	screen.fill("silver")
 
 	# RENDER OUR GAME HERE
-	pygame.draw.circle(screen, "#033660", player_pos, 100)
+	pygame.draw.circle(screen, "#033660", player_pos, 40)
 
 	# Move our circle
 	keys = pygame.key.get_pressed()
 	if keys[pygame.K_UP]:
-		running = False
 		player_pos.y -= 300 * dt
 	if keys[pygame.K_DOWN]:
 		player_pos.y += 300 * dt
