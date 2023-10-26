@@ -13,10 +13,33 @@ running = True
 dt = 0
 player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
 
-# Display All Our Fonts
-fonts = pygame.font.get_fonts()
-#for font in fonts:
-	#print(font)
+# Load our sound effects
+sound_1 = pygame.mixer.Sound('sounds/sound_1.wav')
+
+# Play our sound effects
+#pygame.time.delay(3000)
+#sound_1.play()
+
+# Change the volume of the sound effect
+# sound_1.set_volume(.2)
+
+# Time delay
+#pygame.time.delay(2000)
+# sound_1.play()
+
+# Load BG Music
+pygame.mixer.music.load('sounds/bg.wav')
+
+# Play the BG music
+pygame.mixer.music.play(-1, 0.0) # Repeats, and where to start playing
+
+# Delay then stop music
+pygame.time.delay(5000)
+pygame.mixer.music.stop()
+
+
+
+
 
 # Define the fonts
 system_font = pygame.font.SysFont('impact', 80)
@@ -78,6 +101,7 @@ while running:
 		hero_right_rect.y -= 300 * dt
 	if keys[pygame.K_DOWN]:
 		hero_right_rect.y += 300 * dt
+		sound_1.play()
 
 	if keys[pygame.K_LEFT]:
 		hero_right_rect.x -= 300 * dt
