@@ -12,6 +12,7 @@ running = True
 # Create Variables to keep track of score and lives
 score = 0
 lives = 5
+speed = 5
 
 dt = 0
 player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
@@ -22,24 +23,30 @@ title_font = pygame.font.SysFont('impact', 40)
 score_font = pygame.font.SysFont('impact', 25)
 lives_font = pygame.font.SysFont('impact', 25)
 game_over_font = pygame.font.SysFont('impact', 75)
+restart_game_font = pygame.font.SysFont('impact', 40)
 
 # Render the text (as surface) Text, boolean for antialiasing, text color, bg color
 title_text = title_font.render("Feed Aspen!", True, "#3d5f9f", "silver")
 score_text = score_font.render(f"Score: {score}", True, "#3d5f9f", "silver")
 lives_text = lives_font.render(f"Lives: {lives}", True, "#3d5f9f", "silver")
 game_over_text = game_over_font.render("Game Over", True, "#3d5f9f", "silver")
+restart_game_text = restart_game_font.render("Press 'p' To Play Again...", True, "#3d5f9f", "silver")
 
 # Get Text Rect
 title_text_rect = title_text.get_rect()
 score_text_rect = score_text.get_rect()
 lives_text_rect = lives_text.get_rect()
 game_over_text_rect = game_over_text.get_rect()
+restart_game_text_rect = restart_game_text.get_rect()
+
 
 # Position the text
 title_text_rect.center = (WINDOW_WIDTH/2, 30)
 score_text_rect.topleft = (10,5)
 lives_text_rect.topleft = ((WINDOW_WIDTH - lives_text.get_width() - 10), 5)
 game_over_text_rect.center = (WINDOW_WIDTH/2, WINDOW_HEIGHT/2)
+restart_game_text_rect.center = (WINDOW_WIDTH/2, WINDOW_HEIGHT/2 + 90)
+
 
 # load our images
 aspen = pygame.image.load('images/aspen2.png') 
@@ -77,11 +84,24 @@ while running:
 	if lives == 0:
 		# Game over text
 		screen.blit(game_over_text, game_over_text_rect)
+		screen.blit(restart_game_text, restart_game_text_rect)
 		# Stop The Food From Moving again
 		food_rect.x = 0
 		food_rect.y = 10000
 
-	
+		# Check for p
+		keys = pygame.key.get_pressed()
+		if keys[pygame.K_p]:
+			# Update game start variables
+			score = 0
+			lives = 6
+			speed = 5
+
+			# re-render the score and lives
+			score_text = score_font.render(f"Score: {score}", True, "#3d5f9f", "silver")
+			lives_text = lives_font.render(f"Lives: {lives}", True, "#3d5f9f", "silver")
+
+
 	# Blit images onto screen
 	screen.blit(aspen, aspen_rect)
 	screen.blit(food, food_rect)
@@ -110,13 +130,15 @@ while running:
 		food_rect.y = random.randint(65, (WINDOW_HEIGHT - food.get_height()))
 	else:
 		# Move The food to the left
-		food_rect.x -= 5
+		food_rect.x -= speed
 
 
 	# Check for collisions
 	if aspen_rect.colliderect(food_rect):
 		# Increase the score
 		score += 1
+		speed += 2
+
 		# Update Score Text
 		score_text = score_font.render(f"Score: {score}", True, "#3d5f9f", "silver")
 		food_rect.x = WINDOW_WIDTH + 100
