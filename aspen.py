@@ -13,9 +13,21 @@ running = True
 score = 0
 lives = 5
 speed = 5
+playsound = True
 
 dt = 0
 player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
+
+# Define Backgound Music
+pygame.mixer.music.load('sounds/bg.wav')
+
+# Play Background Music
+pygame.mixer.music.play(-1, 0.0)
+
+# Define Sound Effects
+hit_sound = pygame.mixer.Sound('sounds/dog.mp3')
+miss_sound = pygame.mixer.Sound('sounds/aww.mp3')
+game_over_sound = pygame.mixer.Sound('sounds/game_over.mp3')
 
 
 # Define the fonts
@@ -86,21 +98,32 @@ while running:
 		screen.blit(game_over_text, game_over_text_rect)
 		screen.blit(restart_game_text, restart_game_text_rect)
 		# Stop The Food From Moving again
-		food_rect.x = 0
-		food_rect.y = 10000
+		food_rect.x = WINDOW_WIDTH + 100
+		#food_rect.y = 10000
+		
+		if playsound:
+			# Play game over sound
+			game_over_sound.play()
+			# Turn off bg music
+			pygame.mixer.music.stop()
+			# Turn music loop off
+			playsound = False
 
-		# Check for p
+		# Check for p to restart game
 		keys = pygame.key.get_pressed()
 		if keys[pygame.K_p]:
 			# Update game start variables
 			score = 0
-			lives = 6
+			lives = 5
 			speed = 5
+			playsound = True
 
 			# re-render the score and lives
 			score_text = score_font.render(f"Score: {score}", True, "#3d5f9f", "silver")
 			lives_text = lives_font.render(f"Lives: {lives}", True, "#3d5f9f", "silver")
 
+			# Play Background Music
+			pygame.mixer.music.play(-1, 0.0)
 
 	# Blit images onto screen
 	screen.blit(aspen, aspen_rect)
@@ -122,6 +145,8 @@ while running:
 	# Move Food
 	if food_rect.x < 0:
 		# Aspen Missed the Food!
+		# Play sound
+		miss_sound.play()
 		# Lose a life
 		lives -= 1
 		# Update Lives On Screen
@@ -135,6 +160,9 @@ while running:
 
 	# Check for collisions
 	if aspen_rect.colliderect(food_rect):
+		# Play sound
+		hit_sound.play()
+
 		# Increase the score
 		score += 1
 		speed += 2
