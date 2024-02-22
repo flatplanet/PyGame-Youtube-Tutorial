@@ -15,7 +15,8 @@ player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
 
 # Define a Game Class
 class Game():
-	def __init__(self, aspen_group, food_group):
+	def __init__(self, aspen_group, food_group, bone_group):
+		self.bone_group = bone_group
 		self.aspen_group = aspen_group
 		self.food_group = food_group
 		self.score = 0
@@ -30,8 +31,8 @@ class Game():
 
 		# Add food to our food group
 		# Food Type: 0=blue, 1=red
-		self.food_group.add(Food((random.randint(0,800)),(random.randint(100,200)), self.red_food, 1))
-		for i in range(7):
+		#self.food_group.add(Food((random.randint(0,800)),(random.randint(100,200)), self.red_food, 1))
+		for i in range(8):
 			self.food_group.add(Food(i*100,200, self.blue_food, 0))
 
 		# Define our sounds
@@ -85,7 +86,7 @@ class Game():
 		screen.blit(score_text, score_rect)
 		screen.blit(lives_text, lives_rect)
 
-		if self.score == 7:
+		if self.score == 8:
 			# Add Game over Text
 			screen.blit(win_text, win_rect)
 			screen.blit(restart_text, restart_rect)
@@ -110,8 +111,8 @@ class Game():
 			self.score = 0
 			self.lives = 5
 			# Add new food to the screen
-			self.food_group.add(Food((random.randint(0,800)),(random.randint(100,200)), self.red_food, 1))
-			for i in range(7):
+			#self.food_group.add(Food((random.randint(0,800)),(random.randint(100,200)), self.red_food, 1))
+			for i in range(8):
 				self.food_group.add(Food(i*100,200, self.blue_food, 0))
 
 	def pause_game(self):
@@ -136,6 +137,13 @@ class Game():
 
 
 	def check_collisions(self):
+		if pygame.sprite.groupcollide(self.bone_group, self.food_group, True, True):
+			# Increase the score
+			self.score += 1
+			# Play the score sound
+			self.score_sound.play()
+
+		'''
 		caught_food = pygame.sprite.spritecollideany(self.aspen_group, self.food_group)
 		if caught_food:
 			# Check type of food, red/blue
@@ -170,7 +178,7 @@ class Game():
 					else:
 						self.aspen_group.reset()
 						self.game_over_sound.play()
-
+		'''
 
 # Define an Aspen Class
 class Aspen(pygame.sprite.Sprite):
@@ -191,9 +199,11 @@ class Aspen(pygame.sprite.Sprite):
 
 	# Fire the bones
 	def fire(self):
+		# Restrict number of shots fired
+		#if len(self.bone_group) < 2:
+
 		# Fire the bone
-		if len(self.bone_group) < 2:
-			AspenBone(self.rect.centerx, self.rect.top, self.bone_group)
+		AspenBone(self.rect.centerx, self.rect.top, self.bone_group)
 
 	def update(self):
 		self.move()
@@ -238,6 +248,13 @@ class AspenBone(pygame.sprite.Sprite):
 	def update(self):
 		# Move the bone after shooting
 		self.rect.y -= self.velocity
+		# Delete the bone when it reaches the top of the blue box
+		if self.rect.top < 100:
+			self.kill()
+			# Lose a life
+			our_game.lives -= 1
+			# Die sound
+			our_game.die_sound.play()
 
 
 # Define an Food Class
@@ -291,7 +308,7 @@ aspen = Aspen(200,510, bone_group)
 aspen_group.add(aspen)
 
 # Create Game Object
-our_game = Game(aspen, food_group)
+our_game = Game(aspen, food_group, bone_group)
 
 
 while running:
@@ -301,9 +318,10 @@ while running:
 		if event.type == pygame.QUIT:
 			running = False
 		# Fire the bone with space bar
-		if event.type == pygame.KEYDOWN:
-			if event.key == pygame.K_SPACE:
-				aspen.fire()
+		if our_game.lives > 0:
+			if event.type == pygame.KEYDOWN:
+				if event.key == pygame.K_SPACE:
+					aspen.fire()
 
 	# Pick the screen color
 	screen.fill("silver")
